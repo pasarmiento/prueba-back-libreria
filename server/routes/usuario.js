@@ -7,22 +7,20 @@ const Usuario = require('../models/usuario');
 
 const app = express();
 
+//CRUD usuarios
 
-app.get('/usuario', function(req, res) {
-    console.log('Lleggaaaaa')
+//Obtener usuarios
+app.get('/usuario', function (req, res) {
     let desde = req.query.desde || 0;
     desde = Number(desde);
 
-    let limite = req.query.limite || 1000;
+    let limite = req.query.limite || 10;
     limite = Number(limite);
 
     Usuario.find({ estado: true }, 'nombre email role estado google img')
         .skip(desde)
         .limit(limite)
         .exec((err, usuarios) => {
-
-            console.log('Lleggaaaaa22222')
-
             if (err) {
                 return res.status(400).json({
                     ok: false,
@@ -43,27 +41,19 @@ app.get('/usuario', function(req, res) {
 
         });
 
-
 });
 
-
-
-app.get('/usuario/:nombre', function(req, res) {
-    console.log('Get by nameeeeeee')
+//Obtener usuario por id
+app.get('/usuario/:nombre', function (req, res) {
     let desde = req.query.desde || 0;
     desde = Number(desde);
-
-    let limite = req.query.limite || 100;
+    let limite = req.query.limite || 10;
     limite = Number(limite);
     let nombre = req.params.nombre;
-    console.log(nombre)
     Usuario.find({ nombre: nombre }, 'nombre email role estado google img')
         .skip(desde)
         .limit(limite)
         .exec((err, usuario) => {
-
-            console.log('get by name 44444')
-
             if (err) {
                 return res.status(400).json({
                     ok: false,
@@ -82,7 +72,8 @@ app.get('/usuario/:nombre', function(req, res) {
 
 });
 
-app.post('/usuario', function(req, res) {
+//Crear usuario 
+app.post('/usuario', function (req, res) {
 
     let body = req.body;
 
@@ -92,8 +83,6 @@ app.post('/usuario', function(req, res) {
         password: bcrypt.hashSync(body.password, 10),
         role: body.role
     });
-
-
     usuario.save((err, usuarioDB) => {
 
         if (err) {
@@ -114,8 +103,9 @@ app.post('/usuario', function(req, res) {
 
 });
 
-app.put('/usuario/:id', function(req, res) {
 
+//Actualizar usuario 
+app.put('/usuario/:id', function (req, res) {
     let id = req.params.id;
     let body = _.pick(req.body, ['nombre', 'email', 'img', 'role', 'estado']);
 
@@ -137,15 +127,13 @@ app.put('/usuario/:id', function(req, res) {
 
 });
 
-app.delete('/usuario/:id', function(req, res) {
 
-
+//Eliminar usuario 
+app.delete('/usuario/:id', function (req, res) {
     let id = req.params.id;
-
     let cambiaEstado = {
         estado: false
     };
-
     Usuario.findByIdAndUpdate(id, cambiaEstado, { new: true }, (err, usuarioBorrado) => {
 
         if (err) {
@@ -163,7 +151,6 @@ app.delete('/usuario/:id', function(req, res) {
                 }
             });
         }
-
         res.json({
             ok: true,
             usuario: usuarioBorrado
@@ -171,10 +158,6 @@ app.delete('/usuario/:id', function(req, res) {
 
     });
 
-
-
 });
-
-
 
 module.exports = app;
